@@ -1,9 +1,9 @@
 # TECHNO.COM (payload only) Disassembly by a dinosaur 2022, 2024 (original author unknown)
 # Binary MD5: 4CB859537BCD7BFB9FC5BFD6D74F4782
 #     SHA256: BA33A41BA51C3D56B27107A94EF7842235B6D80A3A5B8710AEBDD87EB3A1905C
-# Assemble with GAS: as technog.asm -o technog.o
-#                    ld -Ttext 0x100 technog.o -o technog.elf
-#                    objcopy -O binary technog.elf techno.com
+# Assemble with GAS: as techno.gas.asm -o techno.gas.o
+#                    ld -Ttext 0x100 techno.gas.o -o techno.elf
+#                    objcopy -O binary techno.elf techno.com
 
 	.code16
 	.section .text
@@ -62,7 +62,7 @@ plot_char:					# fn plot_char(AX, DI):
 # Arguments: DX = timer2 frequency
 	.global beep
 beep:
-	push		%ax					
+	push		%ax
 	mov		$0b10110110, %al	# 0   - 16 bit mode
 						# 1-3 - Mode 3 (Square wave generator)
 						# 4-5 - Access mode: lobyte/hibyte

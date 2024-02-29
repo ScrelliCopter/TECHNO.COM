@@ -1,0 +1,18 @@
+root = true
+
+[*]
+charset = utf-8
+
+[*.asm]
+indent_style = tab
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{masm.asm,nasm.asm}]
+charset = latin1
+end_of_line = crlf
+tab_width = 4
+
+[*.gas.asm]
+end_of_line = lf
+tab_width = 8

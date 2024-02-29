@@ -2,9 +2,9 @@
 ; Binary MD5: 4CB859537BCD7BFB9FC5BFD6D74F4782
 ;     SHA256: BA33A41BA51C3D56B27107A94EF7842235B6D80A3A5B8710AEBDD87EB3A1905C
 ;
-; Assemble with FASM: fasm technon.asm techno.com
-; Assemble with NASM: nasm technon.asm -fbin -o techno.com
-; Assemble with YASM: yasm -f bin technon.asm -o techno.com
+; Assemble with FASM: fasm techno.nasm.asm techno.com
+; Assemble with NASM: nasm techno.nasm.asm -fbin -o techno.com
+; Assemble with YASM: yasm -f bin techno.nasm.asm -o techno.com
 
 			use16
 			org		100h
@@ -146,7 +146,7 @@ goto_beep:
 			dec		bl					; Phrase uses 1-based indicies because of the 0 terminator
 										; So we need to convert it to 0-indexed
 			mov		bh, 0				; BX &= 0xFF
-			shl		bl, 1				; 
+			shl		bl, 1				;
 			mov		dx,	[freqtbl + bx]	; Store frequency from note index into DX
 			call	beep				; Beep with loaded frequency
 			pop		bx

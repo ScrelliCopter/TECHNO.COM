@@ -1,1 +1,6 @@
+*.com
+
+.vs/
+.idea/
+
 .DS_Store
