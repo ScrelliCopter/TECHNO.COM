@@ -76,6 +76,11 @@ class MIDIPitchWheel(MIDIEvent):
 		return struct.pack(">BBB", 0xE0 | self._channel, self._value & 0x7F, self._value >> 7)
 
 
+class MIDIMetaTrackEnd(MIDIEvent):
+	def serialise(self) -> bytes:
+		return struct.pack(">BBB", 0xFF, 0x2F, 0x00)
+
+
 class MIDIMetaTempo(MIDIEvent):
 	def __init__(self, quarter_us: int):
 		if quarter_us < 0 or quarter_us >= 0x1000000:
@@ -90,7 +95,10 @@ class MIDIWriter:
 	def __init__(self, file: BinaryIO):
 		self._file = file
 
-	Format = IntEnum("Format", ["SINGLE", "MULTI", "SEQUENCE"])
+	class Format(IntEnum):
+		SINGLE   = 0
+		MULTI    = 1
+		SEQUENCE = 2
 
 	def write_header(self, division: int, fmt: Format = Format.SINGLE, track_count: int = 1):
 		self._file.write(b"MThd")
@@ -105,8 +113,9 @@ class MIDIWriter:
 		payload_len = 0
 		for event in events:
 			data = event[1].serialise()
-			self._file.write(self.encode_varint(event[0]) + data)
-			payload_len += 4 + len(data)
+			length = self.encode_varint(event[0])
+			self._file.writelines([length, data])
+			payload_len += len(length) + len(data)
 
 		# Fill in track length field
 		self._file.seek(ofs)
@@ -143,7 +152,7 @@ def generate(f: BinaryIO):
 		freq_tbl = [5424, 2712, 2416, 2280]
 		mangler = 0x0404
 
-		yield 0, MIDIMetaTempo(int(round((1000000 * 0x80000) / timer)))  # 16th note every PIC tick
+		yield 0, MIDIMetaTempo(int(round((1000000 * 0x80000) / timer)))  # 16th note every two PIC ticks
 		yield 0, MIDIProgramChange(0, 80)  # Set GM patch to #81 "Lead 1 (Square)"
 
 		i = 0
@@ -158,6 +167,7 @@ def generate(f: BinaryIO):
 				yield 32, MIDINoteOff(0, note)
 				i += 2
 				if i >= length:
+					yield 0, MIDIMetaTrackEnd()
 					return
 			# Scramble pitch table at the end of each measure
 			mangler = (mangler + len(phrase) * 2) & 0xFFFF
