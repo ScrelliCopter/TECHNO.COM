@@ -126,7 +126,7 @@ class MIDIWriter:
 	# Up to 4 bytes can encode 7 bits each by setting the continuation bit (bit 8)
 	def encode_varint(self, value: int) -> bytes:
 		if value < 0x80:
-			return value.to_bytes()
+			return value.to_bytes(1, byteorder="big")
 		if value < 0x4000:
 			return bytes([0x80 | (value >> 7), value & 0x7F])
 		if value < 0x200000:
