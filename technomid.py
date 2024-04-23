@@ -151,6 +151,7 @@ def generate(f: BinaryIO):
 		phrase = [2, *[1, 0, 0] * 3] * 3 + [2, 3] + [0, 3] * 3
 		freq_tbl = [5424, 2712, 2416, 2280]
 		mangler = 0x0404
+		mangler_inc = 76  # len(phrase) * 2
 
 		yield 0, MIDIMetaTempo(int(round((1000000 * 0x80000) / timer)))  # 16th note every two PIC ticks
 		yield 0, MIDIProgramChange(0, 80)  # Set GM patch to #81 "Lead 1 (Square)"
@@ -170,7 +171,7 @@ def generate(f: BinaryIO):
 					yield 0, MIDIMetaTrackEnd()
 					return
 			# Scramble pitch table at the end of each measure
-			mangler = (mangler + len(phrase) * 2) & 0xFFFF
+			mangler = (mangler + mangler_inc) & 0xFFFF
 			freq_tbl = [freq ^ mangler for freq in freq_tbl]
 
 	mid = MIDIWriter(f)
