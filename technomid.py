@@ -145,13 +145,34 @@ def generate(f: BinaryIO):
 		bend = int(round((fnote - note) * 0x1000))    # Error is encoded as pitch bend
 		return min(0x7F, note), min(0x1FFF, bend)
 
+	def parse_midi_note(note: str) -> int:
+		flat_sharp = 0
+		octave = 3
+		if len(note) > 1:
+			if note[1] == '-' or note[1].isnumeric():
+				octave = int(note[1:])
+			else:
+				flat_sharp = { "b": -1, "#": 1 }[note[1]]
+				if len(note) > 2:
+					octave = int(note[2:])
+
+		natural = { "C": 0, "D": 2, "E": 4, "F": 5, "G": 7, "A": 9, "B": 11 }
+		return natural[note[0]] + flat_sharp + (1 + octave) * 12
+
 	def techno(length: int):
 		timer = int(round((1000000 * 1260 / 88) / 12))  # Intel 8253 (PIC) clock in Mhz
+
 		# Music tables from disassembly
 		phrase = [2, *[1, 0, 0] * 3] * 3 + [2, 3] + [0, 3] * 3
-		freq_tbl = [5424, 2712, 2416, 2280]
+		note_tbl = ["A3", "A4", "B4", "C5"]
 		mangler = 0x0404
 		mangler_inc = 76  # len(phrase) * 2
+
+		# Convert note table to period
+		freq_from_note = lambda m: 440.0 * 2.0 ** ((m - 69) / 12.0)
+		period_from_freq = lambda f: int(round(timer / f))
+		period_from_note = lambda s: period_from_freq(freq_from_note(parse_midi_note(s)))
+		freq_tbl = [period_from_note(note) for note in note_tbl]
 
 		yield 0, MIDIMetaTempo(int(round((1000000 * 0x80000) / timer)))  # 16th note every two PIC ticks
 		yield 0, MIDIProgramChange(0, 80)  # Set GM patch to #81 "Lead 1 (Square)"
