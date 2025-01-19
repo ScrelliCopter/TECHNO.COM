@@ -3,6 +3,8 @@ root = true
 [*]
 charset = utf-8
 insert_final_newline = true
+end_of_line = lf
+tab_width = 4
 
 [*.asm]
 indent_style = tab
@@ -11,12 +13,10 @@ trim_trailing_whitespace = true
 [*.{masm.asm,nasm.asm}]
 charset = latin1
 end_of_line = crlf
-tab_width = 4
 
 [*.gas.asm]
-end_of_line = lf
 tab_width = 8
 
 [*.py]
-end_of_line = lf
-tab_width = 4
+indent_style = tab
+trim_trailing_whitespace = true
